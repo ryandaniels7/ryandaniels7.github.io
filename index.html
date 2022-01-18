@@ -1,9 +1,200 @@
-<!doctype html>
+﻿<!DOCTYPE html>
 <html>
-  <head>
-    <title>This is the title of the webpage!</title>
-  </head>
-  <body>
-    <p> HEY BILL!~ This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
-  </body>
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="Register.css">
+    <title></title>
+</head>
+<body>
+    <div class="form-body">
+        <div class="form-holder">
+            <div class="form-content">
+                <div class="form-items">
+                    <h3>Genisys Dissector</h3>
+                    <form id="search" autocomplete="off" data-lpignore="true">
+                        <div class="select">
+                            <label class="no-select">
+                                Message Type:<select id="messagetypeinput">
+                                    <option value="Acknowledge">Acknowledge</option>
+                                    <option value="Indication Data">Indication Data</option>
+                                    <option value="Control Data Checkback">Control Data Checkback</option>
+                                    <option value="Common Control Data">Common Control Data</option>
+                                    <option value="Acknowledge and Poll">Acknowledge and Poll</option>
+                                    <option value="Poll">Poll</option>
+                                    <option value="Control Data">Control Data</option>
+                                    <option value="Recall">Recall</option>
+                                    <option value="Execute Controls">Execute Controls</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <label class="no-select">
+                            Station Address Input:<input type="text" id="stationaddressinput" autocomplete="off" />
+                        </label>
+
+                        <label class="no-select">
+                            Message Direction:<input class="disabled" type="text" disabled="disabled" id="messagedirectioninput" />
+                        </label>
+
+                        <label class="no-select">
+                            CRC:<input class="disabled" type="text" disabled="disabled" id="crcinput" />
+                        </label>
+
+                        <div class="row">
+                            <div class="column">
+                                <div class="first-of-type">
+                                    <input class="inp-cbx" id="databasecomplete" type="checkbox" />
+                                    <label class="cbx" for="databasecomplete">
+                                        <span>
+                                            <svg width="12px" height="10px">
+                                                <use xlink:href="#check" />
+                                            </svg>
+                                        </span>
+                                        <span>Database Complete</span>
+                                    </label>
+                                </div>
+                                <div class="first-of-type">
+                                    <input class="inp-cbx" id="securepollonly" type="checkbox" />
+                                    <label class="cbx" for="securepollonly">
+                                        <span>
+                                            <svg width="12px" height="10px">
+                                                <use xlink:href="#check" />
+                                            </svg>
+                                        </span>
+                                        <span>Secure Poll Only</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div>
+                                    <input class="inp-cbx" id="checkbackcontroldelivery" type="checkbox" />
+                                    <label class="cbx" for="checkbackcontroldelivery">
+                                        <span>
+                                            <svg width="12px" height="10px">
+                                                <use xlink:href="#check" />
+                                            </svg>
+                                        </span>
+                                        <span>Checkback Control</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input class="inp-cbx" id="commoncontrolmessageprocessing" type="checkbox" />
+                                    <label class="cbx" for="commoncontrolmessageprocessing">
+                                        <span>
+                                            <svg width="12px" height="10px">
+                                                <use xlink:href="#check" />
+                                            </svg>
+                                        </span>
+                                        <span>Common Control</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid_table" id="Bit_Table">
+                            <div class="first-grid-row">
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-1" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-1</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-2" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-2</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-3" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-3</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-4" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-4</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-5" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-5</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-6" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-6</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-7" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-7</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-8" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-8</span>
+                                </label>
+                            </div>
+
+                            <div class="grid-row">
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-9" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-9</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-10" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-10</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-11" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-11</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-12" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-12</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-13" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-13</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-14" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-14</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-15" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-15</span>
+                                </label>
+                                <label class="grid-item">
+                                    <input class="custom-checkbox-input" id="bit-16" value="False" type="checkbox">
+                                    <span class="custom-checkbox-text">Bit-16</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="container">
+                            <button class="row-button" type="button" onclick="AddRows()" >+</button>
+                            <button class="row-button" type="button" onclick="RemoveRows()" >-</button>
+                        </div>
+                        <div class="regular-input">
+                            <label class="no-select" for="inputmessageinput">Input Message:</label>
+                            <input type="text" value="F2 01 00 81 01 20 02 00 03 C0 E0 0B 3B FF F6" oninput="ParseMessage()" id="inputmessageinput">
+                        </div>
+
+                        <div>
+                            <label class="no-select" for="generatedmessageinput">Generated Message:</label>
+                            <input type="text" id="generatedmessageinput">
+                        </div>
+
+                        <label class="no-select">
+                            Error:<input class="disabled" type="text" disabled="disabled" id="errorinput" />
+                        </label>
+
+                        <div>
+                            <button type="button" onclick="ParseMessage()" class="btn-primary">Parse</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <script src="Register.js"></script>
+    </div>
+</body>
 </html>
+
+<!--SVG Sprites-->
+<svg class="inline-svg">
+    <symbol id="check" viewBox="0 0 12 10">
+        <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+    </symbol>
+</svg>
