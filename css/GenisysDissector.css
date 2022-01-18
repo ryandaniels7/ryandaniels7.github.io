@@ -1,18 +1,6 @@
 ﻿@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;900&display=swap');
 
 :root {
-    --color1: #F8F9FA;
-    --color2: #E9ECEF;
-    --color3: #DEE2E6;
-    --color4: #CED4DA;
-    --color5: #ADB5BD;
-    --color6: #CED4DA;
-    --color7: #495057;
-    --color8: #343A40;
-    --color9: #212529;
-    --color-error: #E63946;
-    --color-medium: #457B9D;
-    --color-dark: #1D3557;
     --color-border: #344955;
     --color-text: black;
     --color-text-background: #D5ECFA;
@@ -44,7 +32,6 @@ html, body {
     background-color: var(--color-background-main);
     overflow: hidden;
 }
-
 
 .custom-checkbox-input {
     display: none;
@@ -163,7 +150,6 @@ html, body {
     margin-top: -10px;
 }
 
-
 .form-content p {
     color: var(--color-text);
     text-align: left;
@@ -172,7 +158,6 @@ html, body {
     line-height: 20px;
     margin-bottom: 20px;
 }
-
 
 .form-content label, .was-validated .form-check-input:invalid ~ .form-check-label, .was-validated .form-check-input:valid ~ .form-check-label {
     color: var(--color-text);
@@ -193,13 +178,13 @@ html, body {
     margin-bottom: 5px;
 }
 
-    .form-content input[type=text]:not(.errorfield) {
-        text-transform: uppercase;
-    }
+.form-content input[type=text]:not(.errorfield) {
+    text-transform: uppercase;
+}
 
-    .form-content input[type=text]:not(.disabled) {
-        background: var(--color-text-background);
-    }
+.form-content input[type=text]:not(.disabled) {
+    background: var(--color-text-background);
+}
 
 .form-content select {
     width: 100%;

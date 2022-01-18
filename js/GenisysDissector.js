@@ -12,10 +12,28 @@ var OutputMessage = "";
 const inputmessagefield = document.getElementById("inputmessageinput");
 const stationaddressfield = document.getElementById("stationaddressinput");
 const messagetypefield = document.getElementById("messagetypeinput");
+const databasecompletebox = document.getElementById("databasecomplete");
+const securepollonlybox = document.getElementById("securepollonly");
+const checkbackcontroldeliverybox = document.getElementById("checkbackcontroldelivery");
+const commoncontrolmessageprocessingbox = document.getElementById("commoncontrolmessageprocessing");
 
 inputmessagefield.addEventListener('keydown', inputmessagefieldcheck);
 stationaddressfield.addEventListener('keydown', stationaddressfieldcheck);
 messagetypefield.addEventListener('change', UpdateMessage);
+stationaddressfield.addEventListener('keyup', UpdateMessage);
+
+databasecompletebox.addEventListener('change', UpdateMessage);
+securepollonlybox.addEventListener('change', UpdateMessage);
+checkbackcontroldeliverybox.addEventListener('change', UpdateMessage);
+commoncontrolmessageprocessingbox.addEventListener('change', UpdateMessage);
+
+for (var i = 1; i <= 16; i++) {
+    var BitCells = document.getElementsByClassName("custom-checkbox-input");
+    for (var i = 0; i < BitCells.length; i++) {
+        var cell = BitCells[i];
+        cell.addEventListener('change', UpdateMessage);
+    }
+}
 
 function inputmessagefieldcheck(e) {
     if (e.key.includes("Arrow") || e.key === "Backspace" || e.key === "End" || e.key === "Home" || e.key === "Delete") {
@@ -33,7 +51,6 @@ function stationaddressfieldcheck(e) {
     else if (!e.key.toUpperCase().match(numregex)) {
         e.preventDefault();
     }
-    UpdateMessage();
 }
 
 class GenisysMessage {
@@ -85,11 +102,25 @@ class Crc16 {
 
 function ComputeChecksum(bytes) {
     var crc = 0;
+
     for (let i = 0; i < bytes.length; i++) {
-        var index = (crc ^ bytes[i]);
+        var byte = bytes[i];
+        var index = crc ^ byte;
+        while (index > 256) {
+            index -= 256;
+        }
         crc = ((crc >> 8) ^ table[index]);
     }
     return crc;
+
+
+
+    //var crc = 0;
+    //for (let i = 0; i < bytes.length; i++) {
+    //    var index = (crc ^ bytes[i]);
+    //    crc = ((crc >> 8) ^ table[index]);
+    //}
+    //return crc;
 }
 
 function ComputeChecksumBytes(bytes) {
@@ -116,19 +147,94 @@ function UpdateMessage() {
     NewMessageBytes = [];
     BuildDirection();
     BuildAddress();
-    //BuildPayloadBytes();
-    //BuildControlByte();
-    //BuildCRC();
-    //BuildTerminator();
+    BuildPayloadBytes();
+    BuildControlByte();
+    BuildCRC();
+    BuildTerminator();
     BuildOutputMessage();
     SetText("generatedmessageinput", OutputMessage);
+}
+
+function BuildCRC() {
+    var decarray = [];
+    for (var i = 0; i < NewMessageBytes.length; i++) {
+        decarray.push(parseInt(NewMessageBytes[i], 16));
+    }
+                  
+    var CalcCRC = ComputeChecksum(decarray.slice(0, decarray.length));
+    var hex = CalcCRC.toString(16).toUpperCase();
+    hex = "0000".substr(hex.length) + hex;
+    SetText("crcinput", hex);
+    NewMessageBytes.push(hex.slice(2, 4));
+    NewMessageBytes.push(hex.slice(0, 2));
+}
+
+function BuildTerminator() {
+    NewMessageBytes.push("F6");
+}
+
+function BuildControlByte() {
+    NewMessageBytes.push("E0");
+    var byte = "";
+    if (GetValue("commoncontrolmessageprocessing")) {
+        byte += 1;
+    } else {
+        byte += 0;
+    }
+    if (GetValue("securepollonly")) {
+        byte += 1;
+    } else {
+        byte += 0;
+    }
+    if (GetValue("checkbackcontroldelivery")) {
+        byte += 1;
+    } else {
+        byte += 0;
+    }
+    if (GetValue("databasecomplete")) {
+        byte += 1;
+    } else {
+        byte += 0;
+    }
+    byte = parseInt(byte, 2).toString(16).toUpperCase();
+    byte = "00".substr(byte.length) + byte;
+    NewMessageBytes.push(byte);
+}
+
+function BuildPayloadBytes() {
+    var PayloadBytes = [];
+    var BitCells = document.getElementsByClassName("custom-checkbox-input");
+    for (var i = 0; i < BitCells.length; i++) {
+        PayloadBytes.push(BitCells[i].checked);
+    }
+
+    for (var i = 0; i < PayloadBytes.length / 8; i++) {
+        NewMessageBytes.push(dec2hex(i));
+        var byte = "";
+        for (var j = 7; j >= 0; j--) {
+            if (PayloadBytes[i*8 + j]) {
+                byte += 1;
+            } else {
+                byte += 0;
+            }
+        }
+        byte = parseInt(byte, 2).toString(16).toUpperCase();
+        byte = "00".substr(byte.length) + byte;
+        NewMessageBytes.push(byte);
+    }
+}
+
+function Bool2Int(bit) {
+    return bit ? 1 : 0;
 }
 
 function BuildAddress() {
     if (GetText("stationaddressinput") === "") {
         return;
     }
-    NewMessageBytes.push(GetText("stationaddressinput").toString(16));
+    var address = GetText("stationaddressinput").toString(16);
+    address = "00".substr(address.length) + address;
+    NewMessageBytes.push(address);
 }
 
 function BuildOutputMessage() {
@@ -249,6 +355,11 @@ function dec2binarray(dec) {
     var n = dec.toString(2);
     n = "00000000".substr(n.length) + n;
     return n.split("").reverse();
+}
+
+function dec2hex(dec) {
+    var n = dec.toString(16);
+    return "00".substr(n.length) + n;
 }
 
 function BuildTable() {
@@ -407,6 +518,7 @@ function AddRows() {
         new_input.id = "Bit-" + highestbit;
         new_input.value = "False";
         new_input.type = "checkbox";
+        new_input.addEventListener('change', UpdateMessage);
         new_label.append(new_input);
 
         var new_span = document.createElement('span');
@@ -414,6 +526,7 @@ function AddRows() {
         new_span.innerText = "Bit-" + highestbit;
         new_label.append(new_span);
     }
+    UpdateMessage();
 }
 
 function RemoveRows() {
@@ -422,6 +535,7 @@ function RemoveRows() {
         table.removeChild(table.lastElementChild);
         highestbit -= 16;
     }
+    UpdateMessage();
 }
 
 function StripWhitespace(str) {
