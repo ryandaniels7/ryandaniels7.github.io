@@ -23,10 +23,6 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.Message-Settings {
-    display: inline-block;
-}
-
 html, body {
     height: 100%;
     background-color: var(--color-background-main);
@@ -37,12 +33,18 @@ html, body {
     display: none;
 }
 
-.custom-textbox-label {
+.input-label {
     display: block;
     flex-direction: column;
     justify-content: start;
     text-align: left;
     line-height: 26px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .no-select {
@@ -61,8 +63,7 @@ html, body {
 .custom-checkbox-text {
     background-color: var(--color-background-light);
     display: inline-block;
-    width: 70px;
-    margin: -1px -1px 0 0;
+    width: 68px;
     color: var(--color-text);
     justify-content: center;
     cursor: pointer;
@@ -77,15 +78,9 @@ html, body {
 
 .grid_table {
     border: 1px solid var(--color-border);
-    height: 90px;
-    width: 572px;
+    height: 95px;
+    width: 566px;
     overflow-y: scroll;
-}
-
-.first-grid-row {
-    margin-top: 1px;
-    font-size: 0;
-    text-align: center;
 }
 
 .grid-row {
@@ -102,7 +97,6 @@ html, body {
 .regular-input {
     display: inline-block;
     width: 100%;
-    margin-top: 5px;
 }
 
 .form-holder {
@@ -126,7 +120,6 @@ html, body {
         justify-content: center;
         -webkit-align-items: center;
         align-items: center;
-        padding: 60px;
     }
 
 .form-content .form-items {
@@ -144,10 +137,11 @@ html, body {
 
 .form-content h3 {
     color: var(--color-text);
+    margin-top: -10px;
+    margin-bottom: 10px;
     text-align: left;
     font-size: 28px;
     font-weight: 600;
-    margin-top: -10px;
 }
 
 .form-content p {
@@ -156,26 +150,19 @@ html, body {
     font-size: 17px;
     font-weight: 300;
     line-height: 20px;
-    margin-bottom: 20px;
-}
-
-.form-content label, .was-validated .form-check-input:invalid ~ .form-check-label, .was-validated .form-check-input:valid ~ .form-check-label {
-    color: var(--color-text);
 }
 
 .form-content input[type=text] {
     width: 100%;
-    padding: 4px 10px;
+    padding: 2px 4px;
     outline: 0;
     border-radius: 3px;
     border: 1px solid black;
-    text-transform: uppercase;
     font-size: 15px;
     font-weight: 300;
     color: var(--color-text);
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    margin-bottom: 5px;
 }
 
 .form-content input[type=text]:not(.errorfield) {
@@ -186,9 +173,13 @@ html, body {
     background: var(--color-text-background);
 }
 
+.form-content input[type=text]:disabled {
+    background: var(--color-text-background-disabled);
+}
+
 .form-content select {
     width: 100%;
-    padding: 4px 10px;
+    padding: 2px 2px;
     outline: 0;
     border-radius: 3px;
     border: 1px solid black;
@@ -198,14 +189,32 @@ html, body {
     color: var(--color-text);
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    margin-bottom: 5px;
+}
+
+.container {
+    position: relative;
+    border: 3px solid green;
+}
+
+.center {
+    margin: 0;
+    -ms-transform: translate(50%, 0%);
+    transform: translate(40%, 0%);
 }
 
 .row-button {
-    margin-top: 5px;
+    margin-top: 10px;
+    margin-left: 2px;
+    width: 24px;
+    background-color: var(--color-button-background);
+    color: var(--color-button-text);
+    outline: #1d3557 solid 1px;
+    border: 0px;
 }
 
-.btn-primary {
+.parse-button {
+    margin-top: 10px;
+    margin-bottom: -10px;
     background-color: var(--color-button-background);
     color: var(--color-button-text);
     padding: 6px 20px;
@@ -216,11 +225,6 @@ html, body {
     .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
         background-color: var(--color-button-background-hover);
     }
-
-.mv-up {
-    margin-top: -9px !important;
-    margin-bottom: 8px !important;
-}
 
 * {
     box-sizing: border-box;
@@ -289,18 +293,21 @@ html, body {
             stroke-dashoffset: 0;
         }
 
-.first-of-type {
-    margin-bottom: 5px;
-}
-
 .column {
-    margin-left: 10px;
     float: left;
-    width: 35%;
-    margin-bottom: 10px;
+    width: 38%;
 }
 
-/* Clear floats after the columns */
+.row {
+    margin-left: 2px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.first-cbx-row {
+    margin-bottom: 4px;
+}
+
 .row:after {
     content: "";
     display: table;
@@ -340,7 +347,6 @@ body {
 
     .cbx {
         width: 100%;
-        margin-bottom: 4px;
         display: inline-block;
     }
 }

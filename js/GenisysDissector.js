@@ -8,6 +8,8 @@ var cells;
 var Parsing = false;
 var NewMessageBytes = [];
 var OutputMessage = "";
+var oldaddress = "1";
+var successful = false;
 
 const inputmessagefield = document.getElementById("inputmessageinput");
 const stationaddressfield = document.getElementById("stationaddressinput");
@@ -17,10 +19,25 @@ const securepollonlybox = document.getElementById("securepollonly");
 const checkbackcontroldeliverybox = document.getElementById("checkbackcontroldelivery");
 const commoncontrolmessageprocessingbox = document.getElementById("commoncontrolmessageprocessing");
 
+stationaddressfield.defaultValue = "1";
+
 inputmessagefield.addEventListener('keydown', inputmessagefieldcheck);
 stationaddressfield.addEventListener('keydown', stationaddressfieldcheck);
 messagetypefield.addEventListener('change', UpdateMessage);
 stationaddressfield.addEventListener('keyup', UpdateMessage);
+
+messagetypefield.addEventListener('wheel', function (e) {
+    if (this.hasFocus) {
+        return;
+    }
+    if (e.deltaY < 0) {
+        this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+    }
+    if (e.deltaY > 0) {
+        this.selectedIndex = Math.min(this.selectedIndex + 1, this.length - 1);
+    }
+    UpdateMessage();
+});
 
 databasecompletebox.addEventListener('change', UpdateMessage);
 securepollonlybox.addEventListener('change', UpdateMessage);
@@ -36,7 +53,10 @@ for (var i = 1; i <= 16; i++) {
 }
 
 function inputmessagefieldcheck(e) {
-    if (e.key.includes("Arrow") || e.key === "Backspace" || e.key === "End" || e.key === "Home" || e.key === "Delete") {
+    if ((e.key === "v" | e.key === "c" | e.key === "x" | e.key === "z" | e.key === "y") & e.ctrlKey) {
+        
+    }
+    else if (e.key.includes("Control") || e.key.includes("Arrow") || e.key === "Backspace" || e.key === "End" || e.key === "Home" || e.key === "Delete") {
 
     }
     else if (!e.key.toUpperCase().match(hexregex)) {
@@ -45,7 +65,10 @@ function inputmessagefieldcheck(e) {
 }
 
 function stationaddressfieldcheck(e) {
-    if (e.key.includes("Arrow") || e.key === "Backspace" || e.key === "End" || e.key === "Home" || e.key === "Delete") {
+    if ((e.key === "v" | e.key === "c" | e.key === "x" | e.key === "z" | e.key === "y") & e.ctrlKey) {
+
+    }
+    else if (e.key.includes("Control") || e.key.includes("Arrow") || e.key === "Backspace" || e.key === "End" || e.key === "Home" || e.key === "Delete") {
 
     }
     else if (!e.key.toUpperCase().match(numregex)) {
@@ -54,7 +77,7 @@ function stationaddressfieldcheck(e) {
 }
 
 class GenisysMessage {
-    constructor(messagestr, errormessage = "", messagebytes, databytes, controlbytes, message, messagetype = "", messagedirection = "", hasCRC, slaveAddress, crc = "", calcCRC, payload = "", databasecomplete, checkbackcontroldelivery, securepollonly, commoncontrolmessageprocessing, E0control) {
+    constructor(messagestr, errormessage = "", messagebytes, databytes = new Array(0), controlbytes = [], message, messagetype = "", messagedirection = "", hasCRC, slaveAddress, crc = "", calcCRC, payload = "", databasecomplete, checkbackcontroldelivery, securepollonly, commoncontrolmessageprocessing, E0control) {
         this.messagestr = messagestr;
         this.hexstring = StripWhitespace(messagestr);
         this.errormessage = errormessage;
@@ -112,15 +135,6 @@ function ComputeChecksum(bytes) {
         crc = ((crc >> 8) ^ table[index]);
     }
     return crc;
-
-
-
-    //var crc = 0;
-    //for (let i = 0; i < bytes.length; i++) {
-    //    var index = (crc ^ bytes[i]);
-    //    crc = ((crc >> 8) ^ table[index]);
-    //}
-    //return crc;
 }
 
 function ComputeChecksumBytes(bytes) {
@@ -135,15 +149,26 @@ function StationAddressCheck() {
 }
 
 function ParseButton() {
+    CleanInput();
     Parsing = true;
-    ParseMessage();
+    successful = ParseMessage();
     Parsing = false;
-    UpdateMessage();
+    if (successful) {
+        UpdateMessage();
+    }
+}
+
+function CleanInput() {
+    var inputtext = GetText("inputmessageinput");
+    inputtext = inputtext.replaceAll(/[^a-f0-9 ]+/ig, "");
+    inputtext = inputtext.replaceAll(/\s{2,}/ig, "");
+    SetText("inputmessageinput", inputtext);
 }
 
 function UpdateMessage() {
     if (Parsing) return;
     SetText("generatedmessageinput");
+    SetText("errorinput");
     NewMessageBytes = [];
     BuildDirection();
     BuildAddress();
@@ -152,10 +177,24 @@ function UpdateMessage() {
     BuildCRC();
     BuildTerminator();
     BuildOutputMessage();
+    ErrorCheck();
     SetText("generatedmessageinput", OutputMessage);
 }
 
+function ErrorCheck() {
+    if (GetText("messagetypeinput") === "") {
+        ErrorMessage("Message type not selected.");
+    }
+    if (GetText("stationaddressinput") === "0" & GetText("messagetypeinput") !== "Common Control Data") {
+        ErrorMessage("Station address 0 only available with Common Control Data message type.");
+    }
+}
+
 function BuildCRC() {
+    var findOne = MessageTypeToHex.find(x => x.Type === GetText("messagetypeinput"));
+    if (!findOne.HasCRC) {
+        return;
+    }
     var decarray = [];
     for (var i = 0; i < NewMessageBytes.length; i++) {
         decarray.push(parseInt(NewMessageBytes[i], 16));
@@ -174,6 +213,7 @@ function BuildTerminator() {
 }
 
 function BuildControlByte() {
+
     NewMessageBytes.push("E0");
     var byte = "";
     if (GetValue("commoncontrolmessageprocessing")) {
@@ -230,10 +270,20 @@ function Bool2Int(bit) {
 
 function BuildAddress() {
     if (GetText("stationaddressinput") === "") {
+        SetText("stationaddressinput", 0);
+        ErrorMessage("Station address cannot be blank.");
+    }
+    SetText("stationaddressinput", parseInt(GetText("stationaddressinput")));
+    var address = parseInt(GetText("stationaddressinput"));
+    if (address > 255) {
+        SetText("stationaddressinput", oldaddress);
+        ErrorMessage("Station address must be between 0 and 255.");
         return;
     }
-    var address = GetText("stationaddressinput").toString(16);
+    oldaddress = address;
+    address = address.toString(16);
     address = "00".substr(address.length) + address;
+
     NewMessageBytes.push(address);
 }
 
@@ -254,30 +304,31 @@ function ParseMessage() {
     ClearForm();
     newGenisysMessage = new GenisysMessage(document.getElementById("inputmessageinput").value);
     if (!CheckPairs()) {
-        return;
+        return false;
     }
     if (!CheckHex()) {
-        return;
+        return false;
     }
     if (!BuildBytes()) {
-        return;
+        return false;
     }
 
     populateMessage();
 
     if (!decodeHeader()) {
-        return;
+        return false;
     }
 
-    if (!CheckAddresses()) {
-        return;
+    if (!CheckControls()) {
+        return false;
     }
 
     if (!BuildTable()) {
-        return;
+        return false;
     }
 
     FillForm();
+    return true;
 }
 
 function getKeyByValue(object, value) {
@@ -293,7 +344,7 @@ function decodeHeader() {
 
     var HexValue = (newGenisysMessage.messagebytes[0]).toString(16).toUpperCase();
     if (MessageTypeToHex.find(x => x.Hex === HexValue) == undefined) {
-        ErrorMessage("Invalid Header: " + HexValue);
+        ErrorMessage("Invalid Header: " + HexValue + ".");
         return false;
     }
     var findOne = MessageTypeToHex.find(x => x.Hex === HexValue);
@@ -311,13 +362,12 @@ function decodeHeader() {
         return false;
     }
     if (!newGenisysMessage.hasCRC && newGenisysMessage.message.length < 3) {
-        ErrorMessage("Message length: " + newGenisysMessage.message.length + ". Expected at least 3 bytes.");
+        ErrorMessage("Message length: " + newGenisysMessage.message.length + ". Expected at least 3 bytes");
         return false;
     }
     newGenisysMessage.slaveAddress = newGenisysMessage.message[1];
-    if ((newGenisysMessage.slaveAddress == 0) && (newGenisysMessage.messageBytes[0] != 0xF9)) {
-        ErrorMessage("Invalid Station Address: " + newGenisysMessage.slaveAddress.ToString("X2") +
-            "\nBroadcast address can only be used with Common Control Message.");
+    if ((newGenisysMessage.slaveAddress === 0) && (newGenisysMessage.messageBytes[0] !== 0xF9)) {
+        ErrorMessage("Station address 0 only available with Common Control Data message type.");
         return false;
     }
     if (newGenisysMessage.hasCRC) {
@@ -330,7 +380,7 @@ function decodeHeader() {
         newGenisysMessage.payload = newGenisysMessage.message.slice(2, newGenisysMessage.message.length - 3);
         if ((newGenisysMessage.payload.length % 2) != 0) {
             ErrorMessage("Invalid Number of Data Bytes: " + newGenisysMessage.payload.length +
-                "\nData Bytes must be included as two byte pairs.");
+                ". Data Bytes must be two byte pairs.");
             return false;
         }
         newGenisysMessage.databytes = new Array(0);
@@ -363,6 +413,10 @@ function dec2hex(dec) {
 }
 
 function BuildTable() {
+    if (newGenisysMessage.databytes.length === 0) {
+        RemoveRows(true);
+        return true;
+    }
     newGenisysMessage.messagebytes = new Array();
     var bitassignments = [];
     for (let b in newGenisysMessage.databytes) {
@@ -439,15 +493,15 @@ function BuildBytes() {
         return false;
     }
     //Check Terminator Byte
-    if ((newGenisysMessage.messagebytes[newGenisysMessage.messagebytes.length - 1] & 0xF0) !== 0xF0) {
-        ErrorMessage("Invalid terminator byte: " + byteToString(newGenisysMessage.messagebytes[newGenisysMessage.messagebytes.length - 1]));
+    if (newGenisysMessage.messagebytes[newGenisysMessage.messagebytes.length - 1] !== 0xF6) {
+        ErrorMessage("Invalid terminator byte: " + byteToString(newGenisysMessage.messagebytes[newGenisysMessage.messagebytes.length - 1]) + ". Must end with F6.");
         return false;
     }
 
     return true;
 }
 
-function CheckAddresses() {
+function CheckControls() {
     if (newGenisysMessage.controlbytes.length > 0) {
         for (var i = 0; i < newGenisysMessage.controlbytes.length; i++) {
             if ((newGenisysMessage.controlbytes[i] & 0x01) === 0x01) {
@@ -462,7 +516,6 @@ function CheckAddresses() {
             if ((newGenisysMessage.controlbytes[i] & 0x08) === 0x08) {
                 newGenisysMessage.commoncontrolmessageprocessing = true;
             }
-            //newGenisysMessage.E0control = format(newGenisysMessage.controlbytes[i], "02x");
         }
     }
     return true;
@@ -486,7 +539,7 @@ function CheckPairs() {
         return false;
     }
     else if (newGenisysMessage.hexstring.length % 2 !== 0) {
-        ErrorMessage("Invalid Message String.\nString must have an even number of characters.");
+        ErrorMessage("String must have an even number of characters.");
         return false;
     }
     return true;
@@ -496,7 +549,7 @@ function CheckHex() {
     const regex = /^[0-9A-F]*$/ig;
     const ishex = newGenisysMessage.hexstring.match(regex);
     if (ishex == null) {
-        ErrorMessage("Invalid Message String.\nInvalid hex digit encountered.");
+        ErrorMessage("Invalid hex digit encountered.");
         return false;
     }
 
@@ -529,9 +582,23 @@ function AddRows() {
     UpdateMessage();
 }
 
-function RemoveRows() {
+function RemoveRows(allrows = false) {
+    var table = document.getElementById("Bit_Table");
+    if (allrows) {
+        while (table.childElementCount > 0) {
+            table.removeChild(table.lastElementChild);
+            highestbit -= 16;
+        }
+    }
+
     if (highestbit > 16) {
-        var table = document.getElementById("Bit_Table");
+        table.removeChild(table.lastElementChild);
+        highestbit -= 16;
+    }
+    else if (highestbit === 16) {
+        if (table.childElementCount === 2) {
+            table.removeChild(table.lastElementChild);
+        }
         table.removeChild(table.lastElementChild);
         highestbit -= 16;
     }
